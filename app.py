@@ -31,7 +31,6 @@ google = oauth.register(
 
 @app.route("/")
 def index():
-    # hello
     if "user_id" in session:
         return redirect(url_for("dashboard"))
     return render_template("index.html")
