@@ -57,22 +57,31 @@ def register():
         password = request.form.get("password")
         ConPassword = request.form.get("ConPassword")
 
+        # Store form data to pass back on error
+        form_data = {"name": name, "email": email}
+
         # check if user already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return render_template(
-                "register.html", error="User with this email already exists"
+                "register.html",
+                error="User with this email already exists",
+                **form_data
             )
 
         # check password length
         if len(password) < 8:
             return render_template(
-                "register.html", error="Password must be at least 8 characters long"
+                "register.html",
+                error="Password must be at least 8 characters long",
+                **form_data
             )
 
         # check if passwords match
         if password != ConPassword:
-            return render_template("register.html", error="Passwords do not match")
+            return render_template(
+                "register.html", error="Passwords do not match", **form_data
+            )
 
         # if all validations pass, create new user
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
@@ -89,6 +98,10 @@ def login():
     if request.method == "POST":
         email = request.form.get("mail")
         password = request.form.get("password")
+
+        # Store form data
+        form_data = {"email": email}
+
         user = User.query.filter_by(email=email).first()
 
         # validate user credentials
@@ -96,7 +109,9 @@ def login():
             session["user_id"] = user.id
             return redirect(url_for("dashboard"))
         else:  # invalid credentials
-            return render_template("login.html", error="Invalid email or password")
+            return render_template(
+                "login.html", error="Invalid email or password", **form_data
+            )
 
     return render_template("login.html")
 

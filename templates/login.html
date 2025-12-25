@@ -184,7 +184,7 @@ Login - ResultVista
                     Email Address
                 </label>
                 <input type="email" class="form-control-custom" id="email" name="mail" placeholder="abc@xyz.com"
-                    required>
+                    value="{{ email if email else '' }}" required>
             </div>
 
             <!-- Password -->
