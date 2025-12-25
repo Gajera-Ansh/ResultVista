@@ -47,7 +47,7 @@ Login - ResultVista
     }
 
     .register-body {
-        padding: 40px 30px 30px 30px;
+        padding: 40px 30px 6px 30px;
     }
 
     .logo-icon {
@@ -128,6 +128,14 @@ Login - ResultVista
         border-color: #D1D5DB;
     }
 
+    .login-footer {
+        text-align: center;
+        border-top: 1px solid #E3E6E8;
+        padding-top: 20px;
+        color: var(--dark-gray);
+        font-size: 0.9rem;
+    }
+
     @media (max-width: 576px) {
         .register-header {
             padding: 30px 20px 20px;
@@ -201,11 +209,18 @@ Login - ResultVista
 
 
             <!-- Google Sign-In -->
-            <div class="row">
+            <div class="row mb-4">
                 <a type="button" href="/google-register" class="btn btn-google" id="googleRegisterBtn">
                     <img src="https://www.google.com/favicon.ico" alt="Google">
                     Sign in with Google
                 </a>
+            </div>
+
+            <!-- Footer -->
+            <div class="login-footer row">
+                <p>Don't have an account?
+                    <a href="/register" class="register-link">Create one now</a>
+                </p>
             </div>
         </form>
     </div>
