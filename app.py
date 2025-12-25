@@ -1,4 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    make_response,
+)
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from database import db, User
@@ -89,12 +97,36 @@ def login():
             return redirect(url_for("dashboard"))
         else:  # invalid credentials
             return render_template("login.html", error="Invalid email or password")
-        
+
     return render_template("login.html")
+
+
+@app.after_request
+def add_cache_control(response):
+
+    # Add headers to prevent caching
+    if "Cache-Control" not in response.headers:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
 
 
 @app.route("/dashboard")
 def dashboard():
+
+    # check if user is logged in
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    # fetch user details
+    user = User.query.get(session["user_id"])
+
+    # if user not found, clear session and redirect to login
+    if not user:
+        session.clear()
+        return redirect(url_for("login"))
+
     return render_template("dashboard.html")
 
 
@@ -123,7 +155,7 @@ def auth_callback():
         db.session.add(user)
         db.session.commit()
         session["user_id"] = user.id
-        
+
     return redirect(url_for("dashboard"))
 
 
