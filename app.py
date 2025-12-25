@@ -9,7 +9,6 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
 app.config["SECRET_KEY"] = "4227"
 bcrypt = Bcrypt(app)
-bcrypt = Bcrypt(app)
 
 db.init_app(app)
 
@@ -49,17 +48,31 @@ def register():
         email = request.form.get("mail")
         password = request.form.get("password")
         ConPassword = request.form.get("ConPassword")
-        if password != ConPassword:
-            return "Passwords do not match", 400
+
+        # check if user already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
-            return "User already exists", 400
-        else:
-            hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-            new_user = User(name=name, email=email, password=hashed_password)
-            db.session.add(new_user)
-            db.session.commit()
-            return redirect(url_for("login"))
+            return render_template(
+                "register.html", error="User with this email already exists"
+            )
+
+        # check password length
+        if len(password) < 8:
+            return render_template(
+                "register.html", error="Password must be at least 8 characters long"
+            )
+
+        # check if passwords match
+        if password != ConPassword:
+            return render_template("register.html", error="Passwords do not match")
+
+        # if all validations pass, create new user
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+        new_user = User(name=name, email=email, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for("login"))
+
     return render_template("register.html")
 
 
@@ -69,12 +82,16 @@ def login():
         email = request.form.get("mail")
         password = request.form.get("password")
         user = User.query.filter_by(email=email).first()
+
+        # validate user credentials
         if user and bcrypt.check_password_hash(user.password, password):
             session["user_id"] = user.id
             return redirect(url_for("dashboard"))
-        else:
-            return "Invalid credentials", 400
+        else:  # invalid credentials
+            return render_template("login.html", error="Invalid email or password")
+        
     return render_template("login.html")
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -106,6 +123,7 @@ def auth_callback():
         db.session.add(user)
         db.session.commit()
         session["user_id"] = user.id
+        
     return redirect(url_for("dashboard"))
 
 
