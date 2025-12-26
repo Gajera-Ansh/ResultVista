@@ -138,16 +138,12 @@ Login - ResultVista
     }
 
     @media (max-width: 576px) {
-        .register-header {
-            padding: 30px 20px 20px;
-        }
-
         .register-body {
-            padding: 30px 20px;
+            padding: 40px 20px 6px 20px;
         }
 
         .logo-icon {
-            font-size: 2.5rem;
+            font-size: 4rem;
         }
     }
 </style>
@@ -184,7 +180,7 @@ Login - ResultVista
                     Email Address
                 </label>
                 <input type="email" class="form-control-custom" id="email" name="mail" placeholder="abc@xyz.com"
-                    value="{{ email if email else '' }}" required>
+                    value="{{ email if email else '' }}" required autofocus>
             </div>
 
             <!-- Password -->
