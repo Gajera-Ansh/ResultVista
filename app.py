@@ -8,15 +8,20 @@ from flask import (
     make_response,
 )
 from flask_bcrypt import Bcrypt
-from flask_sqlalchemy import SQLAlchemy
 from database import db, User
 from authlib.integrations.flask_client import OAuth
-
+import os
+import pandas as pd
+from werkzeug.utils import secure_filename
+import uuid
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
 app.config["SECRET_KEY"] = "4227"
 bcrypt = Bcrypt(app)
+
+app.config["UPLOAD_FOLDER"] = "uploads"
+app.config["ALLOWED_EXTENSIONS"] = {"xlsx", "xls"}
 
 db.init_app(app)
 
@@ -49,6 +54,35 @@ def google_register():
     return google.authorize_redirect(redirect_uri)
 
 
+@app.route("/auth/callback")
+def auth_callback():
+    token = google.authorize_access_token()
+    resp = google.get("userinfo", token=token)
+    user_info = resp.json()
+
+    password = user_info["id"]
+    name = user_info["name"]
+    email = user_info.get("email")
+    picture = user_info.get("picture")
+
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        session["user_id"] = existing_user.id
+    else:
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+        user = User(
+            password=hashed_password,
+            name=name,
+            email=email,
+            picture=picture,
+        )
+        db.session.add(user)
+        db.session.commit()
+        session["user_id"] = user.id
+
+    return redirect(url_for("dashboard"))
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -66,7 +100,7 @@ def register():
             return render_template(
                 "register.html",
                 error="User with this email already exists",
-                **form_data
+                **form_data,
             )
 
         # check password length
@@ -74,7 +108,7 @@ def register():
             return render_template(
                 "register.html",
                 error="Password must be at least 8 characters long",
-                **form_data
+                **form_data,
             )
 
         # check if passwords match
@@ -127,51 +161,153 @@ def add_cache_control(response):
     return response
 
 
-@app.route("/dashboard")
-def dashboard():
+# Create uploads directory if it doesn't exist
+if not os.path.exists(app.config["UPLOAD_FOLDER"]):
+    os.makedirs(app.config["UPLOAD_FOLDER"])
 
-    # check if user is logged in
+
+def allowed_file(filename):
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
+    )
+
+
+def validate_excel_structure(df):
+    """Validate the structure of the uploaded Excel file"""
+    errors = []
+
+    # Check required columns
+    required_columns = ["sr. no", "enrollment number", "name"]
+
+    # Convert column names to lowercase for comparison
+    actual_columns = [str(col).strip().lower() for col in df.columns]
+
+    # Check for required columns
+    for req_col in required_columns:
+        if req_col not in actual_columns:
+            errors.append(f"Missing required column: '{req_col}'")
+
+    # Check for at least one marks column
+    marks_columns = [col for col in actual_columns if "marks" in col]
+    if not marks_columns:
+        errors.append(
+            "No marks/subject columns found. Add at least one subject column."
+        )
+
+    # Check for valid data type for 'marks'
+    marks_columns = [col for col in df.columns if "marks" in col.lower()]
+    for col in marks_columns:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            errors.append(f"'{col}' column should contain numeric values")
+
+    # Check for valid data type for 'enrollment number'
+    if "enrollment number" in df.columns:
+        if not pd.api.types.is_numeric_dtype(df["enrollment number"]):
+            errors.append("'enrollment number' column should contain numeric values")
+
+    if errors:
+        return False, errors
+
+    return True, []
+
+
+@app.route("/dashboard", methods=["GET", "POST"])
+def dashboard():
+    # Check if user is logged in
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    # fetch user details
+    # Fetch user details
     user = User.query.get(session["user_id"])
 
-    # if user not found, clear session and redirect to login
+    # If user not found, clear session and redirect to login
     if not user:
         session.clear()
         return redirect(url_for("login"))
 
-    return render_template("dashboard.html")
+    upload_error = None
+    upload_success = None
+    preview_data = None
+    stats = None
 
+    if request.method == "POST":
+        # Check if the post request has the file part
+        if "excel_file" not in request.files:
+            upload_error = "No file selected"
+        else:
+            file = request.files["excel_file"]
 
-@app.route("/auth/callback")
-def auth_callback():
-    token = google.authorize_access_token()
-    resp = google.get("userinfo", token=token)
-    user_info = resp.json()
+            # If user does not select file, browser submits empty file
+            if file.filename == "":
+                upload_error = "No file selected"
+            elif file and allowed_file(file.filename):
+                # Generate unique filename
+                filename = secure_filename(file.filename)
+                unique_filename = f"{uuid.uuid4().hex}_{filename}"
+                filepath = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
 
-    password = user_info["id"]
-    name = user_info["name"]
-    email = user_info.get("email")
-    picture = user_info.get("picture")
+                try:
+                    # Save file temporarily
+                    file.save(filepath)
 
-    existing_user = User.query.filter_by(email=email).first()
-    if existing_user:
-        session["user_id"] = existing_user.id
-    else:
-        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-        user = User(
-            password=hashed_password,
-            name=name,
-            email=email,
-            picture=picture,
-        )
-        db.session.add(user)
-        db.session.commit()
-        session["user_id"] = user.id
+                    file_size_mb = round(os.path.getsize(filepath) / (1024 * 1024), 2)
 
-    return redirect(url_for("dashboard"))
+                    # Read Excel file
+                    if filename.endswith(".xlsx"):
+                        df = pd.read_excel(filepath, engine="openpyxl")
+                    else:
+                        df = pd.read_excel(filepath)
+
+                    # Validate structure
+                    is_valid, errors = validate_excel_structure(df)
+
+                    if is_valid:
+                        # Get basic statistics
+                        stats = {
+                            "total_students": len(df),
+                            "total_columns": len(df.columns),
+                            "subjects": [
+                                col for col in df.columns if "marks" in str(col).lower()
+                            ],
+                            "file_name": filename,
+                            "file_size": file_size_mb,
+                        }
+
+                        # Get preview data (first 5 rows)
+                        preview_data = df.head().to_dict("records")
+
+                        # Store file info in session for processing
+                        session["uploaded_file"] = filepath
+                        session["file_stats"] = stats
+
+                        upload_success = f"File '{filename}' uploaded successfully! Validated {len(df)} student records."
+                    else:
+                        upload_error = "Validation errors: " + ", ".join(errors)
+
+                    # Clean up temporary file if not keeping it
+                    if not is_valid:
+                        if os.path.exists(filepath):
+                            os.remove(filepath)
+
+                except Exception as e:
+                    upload_error = f"Error processing file: {str(e)}"
+                    # Clean up if file was saved
+                    if "filepath" in locals() and os.path.exists(filepath):
+                        os.remove(filepath)
+            else:
+                upload_error = (
+                    "Invalid file type. Please upload Excel files only (.xlsx, .xls)"
+                )
+
+    return render_template(
+        "dashboard.html",
+        user=user,
+        upload_error=upload_error,
+        upload_success=upload_success,
+        preview_data=preview_data,
+        stats=stats,
+    )
 
 
 @app.route("/logout")
