@@ -669,8 +669,8 @@ Dashboard - ResultVista
             const file = this.files[0];
 
             // Size formatting
-            let sizeText = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-            fileInfo.textContent = `${file.name} (${sizeText})`;
+            let fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+            fileInfo.textContent = `${file.name} (${fileSize})`;
         });
     });
 
