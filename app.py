@@ -202,8 +202,11 @@ def validate_excel_structure(df):
             errors.append(f"'{col}' column should contain numeric values")
 
     # Check for valid data type for 'enrollment number'
-    if "enrollment number" in df.columns:
-        if not pd.api.types.is_numeric_dtype(df["enrollment number"]):
+    enrollment_columns = [
+        col for col in df.columns if "enrollment number" in col.lower()
+    ]
+    for col in enrollment_columns:
+        if not pd.api.types.is_numeric_dtype(df[col]):
             errors.append("'enrollment number' column should contain numeric values")
 
     if errors:
@@ -244,6 +247,7 @@ def dashboard():
             elif file and allowed_file(file.filename):
                 # Generate unique filename
                 filename = secure_filename(file.filename)
+                # Get 32-char rendom hexadecimal string with simple file name
                 unique_filename = f"{uuid.uuid4().hex}_{filename}"
                 filepath = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
 
@@ -263,7 +267,6 @@ def dashboard():
                     is_valid, errors = validate_excel_structure(df)
 
                     if is_valid:
-                        # Get basic statistics
                         stats = {
                             "total_students": len(df),
                             "total_columns": len(df.columns),
