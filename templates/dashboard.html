@@ -72,6 +72,12 @@ Dashboard - ResultVista
         padding: 40px;
     }
 
+    /* Selection dropdown */
+    .form-select:focus {
+        border-color: var(--accent-teal) !important;
+        box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
+    }
+
     /* Upload Section */
     .upload-section {
         background: var(--light-gray);
@@ -472,6 +478,47 @@ Dashboard - ResultVista
                     <h3 class="mb-3">Upload Student Results Excel File</h3>
                     <p class="text-muted mb-4">Upload an Excel file containing student results data</p>
 
+                    <!-- Total Marks Selection-->
+                    <div class="mb-4" style="max-width: 500px; margin: 0 auto;">
+                        <label for="total_marks" class="form-label fw-bold mb-3" style="color: var(--primary-blue);">
+                            <i class="bi bi-bar-chart-fill me-2"></i>Select Total Marks Per Subject:
+                        </label>
+
+                        <select name="total_marks" id="total_marks" class="form-select"
+                            style="border: 2px solid var(--secondary-blue); border-radius: 10px; padding: 12px; font-size: 1rem;"
+                            required>
+                            <option value="" disabled selected>-- Select what marks are out of --</option>
+                            <option value="100">100 Marks</option>
+                            <option value="50">50 Marks</option>
+                            <option value="25">25 Marks</option>
+                            <option value="20">20 Marks</option>
+                            <option value="10">10 Marks</option>
+                            <option value="custom">Custom Total Marks</option>
+                        </select>
+                    </div>
+
+                    <!-- Custom Marks Input-->
+                    <div id="custom_marks_div" class="mb-4"
+                        style="max-width: 500px; margin: 0 auto 25px; display: none;">
+                        <label for="custom_marks" class="form-label fw-bold mb-2" style="color: var(--accent-teal);">
+                            <i class="bi bi-pencil-square me-2"></i>Enter Custom Total Marks Per Subject:
+                        </label>
+                        <div class="input-group">
+                            <input type="number" name="custom_marks" id="custom_marks" class="form-control"
+                                placeholder="Enter total marks (e.g., 30, 40, 75)" min="10" max="500"
+                                style="border: 2px dashed var(--accent-teal); box-shadow: none !important;">
+                            <span class="input-group-text"
+                                style="background-color: rgba(26, 188, 156, 0.1); border-color: var(--accent-teal); font-weight: 600;">
+                                Marks
+                            </span>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Enter the marks between 10 and 500.
+                        </small>
+                    </div>
+
+                    <!-- File Choose -->
                     <label for="excel_file" class="upload-btn">
                         <i class="bi bi-file-earmark-spreadsheet"></i>
                         Choose Excel File
@@ -479,10 +526,12 @@ Dashboard - ResultVista
                     <input type="file" class="file-input" id="excel_file" name="excel_file" accept=".xlsx,.xls"
                         required>
 
+                    <!-- File Name Display -->
                     <div class="file-name" id="fileName">
-                        No file chosen
+                        No file chosen. Supported: .xlsx, .xls
                     </div>
 
+                    <!-- Submit Button -->
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-upload"></i>
@@ -656,6 +705,18 @@ Dashboard - ResultVista
 
 {% block script %}
 <script>
+    // Total marks selection functionality
+    document.getElementById('total_marks').addEventListener('change', function () {
+        const customDiv = document.getElementById('custom_marks_div');
+        const customInput = document.getElementById('custom_marks');
+
+        if (this.value === 'custom') {
+            customDiv.style.display = 'block';
+            customInput.required = true;
+            customInput.focus();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
         const fileInput = document.getElementById('excel_file');
         const fileInfo = document.getElementById('fileName');
