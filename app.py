@@ -68,6 +68,7 @@ def auth_callback():
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         session["user_id"] = existing_user.id
+        session["login_success"] = True
     else:
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
         user = User(
@@ -141,6 +142,7 @@ def login():
         # validate user credentials
         if user and bcrypt.check_password_hash(user.password, password):
             session["user_id"] = user.id
+            session["login_success"] = True
             return redirect(url_for("dashboard"))
         else:  # invalid credentials
             return render_template(
@@ -310,6 +312,7 @@ def dashboard():
         upload_success=upload_success,
         preview_data=preview_data,
         stats=stats,
+        login_success=session.pop("login_success", None)
     )
 
 

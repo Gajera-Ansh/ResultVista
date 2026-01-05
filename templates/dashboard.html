@@ -432,6 +432,40 @@ Dashboard - ResultVista
 
 {% block body %}
 <div class="dashboard-container">
+
+    {% if login_success %}
+    <div class="position-fixed top-0 start-50 translate-middle-x" style="z-index: 2000;">
+        <div id="loginToast" class="toast show text-dark shadow-lg" role="alert" style="
+            width: auto;
+            border-radius: 12px;
+            border: 3px solid var(--success-green);
+            margin-top: 20px;">
+            <div class="d-flex align-items-center justify-content-between p-3">
+                <div class="d-flex align-items-center me-3">
+                    <div class="me-3" style="
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--accent-teal) 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 1.2rem;">
+                        👋
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-6" style="color: var(--primary-blue);">Welcome,
+                            <b class="fs-6" style="color: var(--dark-gray);">{{ user.name }}</b>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Header -->
     <div class="dashboard-header">
         <div class="user-info">
@@ -705,7 +739,13 @@ Dashboard - ResultVista
 
 {% block script %}
 <script>
-    // Total marks selection functionality
+    document.addEventListener("DOMContentLoaded", function () {
+        const toastEl = document.getElementById("loginToast");
+        const toast = new bootstrap.Toast(toastEl, {
+            delay: 2000
+        });
+    });
+
     document.getElementById('total_marks').addEventListener('change', function () {
         const customDiv = document.getElementById('custom_marks_div');
         const customInput = document.getElementById('custom_marks');
