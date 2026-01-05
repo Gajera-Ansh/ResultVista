@@ -312,7 +312,7 @@ def dashboard():
         upload_success=upload_success,
         preview_data=preview_data,
         stats=stats,
-        login_success=session.pop("login_success", None)
+        login_success=session.pop("login_success", None),
     )
 
 
