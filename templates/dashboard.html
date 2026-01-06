@@ -57,6 +57,11 @@ Dashboard - ResultVista
         padding: 40px;
     }
 
+    .navbar {
+        padding: 15px 40px;
+        background-color: var(--primary-blue);
+    }
+
     /* Selection dropdown */
     .form-select:focus {
         border-color: var(--accent-teal) !important;
@@ -142,6 +147,11 @@ Dashboard - ResultVista
         display: flex;
         align-items: center;
         gap: 10px;
+    }
+
+    .requirements-list :nth-child(2) p {
+        margin: 0;
+        display: inline;
     }
 
     .requirements-list li:last-child {
@@ -387,9 +397,8 @@ Dashboard - ResultVista
             padding: 20px;
         }
 
-        .user-info {
-            flex-direction: column;
-            text-align: center;
+        .navbar {
+            padding: 10px 20px;
         }
 
         .logout-btn {
@@ -451,14 +460,15 @@ Dashboard - ResultVista
     </div>
     {% endif %}
 
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:  #2c3e50; padding: 15px 40px;">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <!-- Logo on left -->
             <a class="navbar-brand" href="{{ url_for('dashboard') }}"
                 style="display: flex; align-items: center; gap: 10px;">
                 <img src="{{ url_for('static', filename='logo - Copy.png') }}" width="50px" height="50px" class="me-2"
                     alt="Logo">
-                <img src="{{ url_for('static', filename='font_logo - Copy.png') }}" alt="ResultVista" height="20px">
+                <img src="{{ url_for('static', filename='font_logo - Copy.png') }}" alt="ResultVista" height="20px"
+                    class="d-none d-md-block">
             </a>
 
             <!-- Right side - User Profile Dropdown -->
@@ -475,7 +485,7 @@ Dashboard - ResultVista
                         style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
                     {% endif %}
 
-                    <span style="font-weight: 600;">{{ user.name }}</span>
+                    <span class="d-none d-md-block" style="font-weight: 600;">{{ user.name }}</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end"
                     style="border-radius: 10px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 10px; min-width: 250px;">
@@ -611,8 +621,9 @@ Dashboard - ResultVista
                 </li>
                 <li>
                     <i class="bi bi-check-circle"></i>
-                    Must include these columns: <strong>sr. no</strong>, <strong>enrollment number</strong>,
-                    <strong>name</strong>
+                    <p>Must include these columns: <strong>sr. no</strong>, <strong>enrollment number</strong>,
+                        <strong>name</strong>
+                    </p>
                 </li>
                 <li>
                     <i class="bi bi-check-circle"></i>
