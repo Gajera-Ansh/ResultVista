@@ -571,7 +571,7 @@ Dashboard - ResultVista
                         </label>
                         <div class="input-group">
                             <input type="number" name="custom_marks" id="custom_marks" class="form-control"
-                                placeholder="Enter total marks (e.g., 30, 40, 75)" min="10" max="500"
+                                pattern="\d+" placeholder="Enter total marks (e.g., 30, 40, 75)" min="10" max="500"
                                 style="border: 2px dashed var(--accent-teal); box-shadow: none !important;">
                             <span class="input-group-text"
                                 style="background-color: rgba(26, 188, 156, 0.1); border-color: var(--accent-teal); font-weight: 600;">
@@ -580,7 +580,7 @@ Dashboard - ResultVista
                         </div>
                         <small class="text-muted mt-2 d-block">
                             <i class="bi bi-info-circle me-1"></i>
-                            Enter the marks between 10 and 500.
+                            Enter whole numbers only (no decimals) between 10 and 500.
                         </small>
                     </div>
 
@@ -800,6 +800,10 @@ Dashboard - ResultVista
             customDiv.style.display = 'block';
             customInput.required = true;
             customInput.focus();
+        } else {
+            customDiv.style.display = 'none';
+            customInput.required = false;
+            customInput.value = '';
         }
     });
 

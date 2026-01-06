@@ -189,6 +189,7 @@ def validate_excel_structure(df):
     for req_col in required_columns:
         if req_col not in actual_columns:
             errors.append(f"Missing required column: '{req_col}'")
+            break
 
     # Check for at least one marks column
     marks_columns = [col for col in actual_columns if "marks" in col]
@@ -202,6 +203,21 @@ def validate_excel_structure(df):
     for col in marks_columns:
         if not pd.api.types.is_numeric_dtype(df[col]):
             errors.append(f"'{col}' column should contain numeric values")
+            break
+
+    # Check if any marks exceed max_marks
+    max_marks = request.form.get("total_marks")
+    if max_marks == "custom":
+        max_marks = int(request.form.get("custom_marks"))
+    else:
+        max_marks = int(max_marks)
+
+    for col in marks_columns:
+        if df[col].max() > max_marks:
+            errors.append(
+                f"Values in '{col}' exceed the maximum allowed marks of {max_marks}"
+            )
+            break
 
     # Check for valid data type for 'enrollment number'
     enrollment_columns = [
@@ -210,6 +226,7 @@ def validate_excel_structure(df):
     for col in enrollment_columns:
         if not pd.api.types.is_numeric_dtype(df[col]):
             errors.append("'enrollment number' column should contain numeric values")
+            break
 
     if errors:
         return False, errors
