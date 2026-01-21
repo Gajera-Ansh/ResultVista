@@ -42,6 +42,7 @@ google = oauth.register(
 )
 
 
+# Home route
 @app.route("/")
 def index():
     if "user_id" in session:
@@ -49,12 +50,14 @@ def index():
     return render_template("index.html")
 
 
+# Google OAuth registration route
 @app.route("/google-register")
 def google_register():
     redirect_uri = url_for("auth_callback", _external=True)
     return google.authorize_redirect(redirect_uri)
 
 
+# Google OAuth callback route
 @app.route("/auth/callback")
 def auth_callback():
     token = google.authorize_access_token()
@@ -85,6 +88,7 @@ def auth_callback():
     return redirect(url_for("dashboard"))
 
 
+# Registration route
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -129,6 +133,7 @@ def register():
     return render_template("register.html")
 
 
+# Login route
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -169,6 +174,7 @@ if not os.path.exists(app.config["UPLOAD_FOLDER"]):
     os.makedirs(app.config["UPLOAD_FOLDER"])
 
 
+# Check allowed file extensions
 def allowed_file(filename):
     return (
         "." in filename
@@ -176,6 +182,7 @@ def allowed_file(filename):
     )
 
 
+# Validate Excel structure
 def validate_excel_structure(df):
     """Validate the structure of the uploaded Excel file"""
     errors = []
@@ -235,6 +242,7 @@ def validate_excel_structure(df):
     return True, []
 
 
+# Dashboard route
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     # Check if user is logged in
@@ -334,12 +342,14 @@ def dashboard():
     )
 
 
+# Logout route
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("index"))
 
 
+# Delete account route
 @app.route("/delete-account", methods=["POST"])
 def delete_account():
     if "user_id" not in session:

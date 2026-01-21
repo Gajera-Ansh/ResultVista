@@ -427,6 +427,7 @@ Dashboard - ResultVista
 {% block body %}
 <div class="dashboard-container">
 
+    <!-- Login Success Toast -->
     {% if login_success %}
     <div class="position-fixed top-0 start-50 translate-middle-x" style="z-index: 2000;">
         <div id="loginToast" class="toast text-dark shadow-lg" role="alert" style="
@@ -772,6 +773,7 @@ Dashboard - ResultVista
 
 {% block script %}
 <script>
+    // Show Login Success Toast
     document.addEventListener("DOMContentLoaded", function () {
         const toastEl = document.getElementById("loginToast");
         const toast = new bootstrap.Toast(toastEl, {
@@ -792,6 +794,7 @@ Dashboard - ResultVista
         }
     });
 
+    // Show/Hide Custom Marks Input
     document.getElementById('total_marks').addEventListener('change', function () {
         const customDiv = document.getElementById('custom_marks_div');
         const customInput = document.getElementById('custom_marks');
@@ -807,6 +810,7 @@ Dashboard - ResultVista
         }
     });
 
+    // Display selected file name and size
     document.addEventListener('DOMContentLoaded', function () {
         const fileInput = document.getElementById('excel_file');
         const fileInfo = document.getElementById('fileName');
