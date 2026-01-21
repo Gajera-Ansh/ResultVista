@@ -16,7 +16,8 @@ from werkzeug.utils import secure_filename
 import uuid
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/user"
 app.config["SECRET_KEY"] = "4227"
 bcrypt = Bcrypt(app)
 
