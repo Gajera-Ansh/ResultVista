@@ -197,7 +197,6 @@ def validate_excel_structure(df):
     for req_col in required_columns:
         if req_col not in actual_columns:
             errors.append(f"Missing required column: '{req_col}'")
-            break
 
     # Check for at least one marks column
     marks_columns = [col for col in actual_columns if "marks" in col]
@@ -211,7 +210,6 @@ def validate_excel_structure(df):
     for col in marks_columns:
         if not pd.api.types.is_numeric_dtype(df[col]):
             errors.append(f"'{col}' column should contain numeric values")
-            break
 
     # Check if any marks exceed max_marks
     max_marks = request.form.get("total_marks")
@@ -225,7 +223,6 @@ def validate_excel_structure(df):
             errors.append(
                 f"Values in '{col}' exceed the maximum allowed marks of {max_marks}"
             )
-            break
 
     # Check for valid data type for 'enrollment number'
     enrollment_columns = [
@@ -234,7 +231,6 @@ def validate_excel_structure(df):
     for col in enrollment_columns:
         if not pd.api.types.is_numeric_dtype(df[col]):
             errors.append("'enrollment number' column should contain numeric values")
-            break
 
     if errors:
         return False, errors
@@ -268,68 +264,80 @@ def dashboard():
             upload_error = "No file selected"
         else:
             file = request.files["excel_file"]
+            max_marks = 0
 
-            # If user does not select file, browser submits empty file
-            if file.filename == "":
-                upload_error = "No file selected"
-            elif file and allowed_file(file.filename):
-                # Generate unique filename
-                filename = secure_filename(file.filename)
-                # Get 32-char rendom hexadecimal string with simple file name
-                unique_filename = f"{uuid.uuid4().hex}_{filename}"
-                filepath = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
+            # Get max_marks from form
+            if request.form.get("total_marks"):
+                if request.form.get("total_marks") == "custom":
+                    max_marks = int(request.form.get("custom_marks"))
+                else:
+                    max_marks = int(request.form.get("total_marks"))
 
-                try:
-                    # Save file temporarily
-                    file.save(filepath)
+        # Store max_marks in session for later use
+        session["max_marks"] = max_marks
 
-                    file_size_mb = round(os.path.getsize(filepath) / (1024 * 1024), 2)
+        # If user does not select file, browser submits empty file
+        if file.filename == "":
+            upload_error = "No file selected"
+        elif file and allowed_file(file.filename):
+            # Generate unique filename
+            filename = secure_filename(file.filename)
+            # Get 32-char rendom hexadecimal string with simple file name
+            unique_filename = f"{uuid.uuid4().hex}_{filename}"
+            filepath = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
 
-                    # Read Excel file
-                    if filename.endswith(".xlsx"):
-                        df = pd.read_excel(filepath, engine="openpyxl")
-                    else:
-                        df = pd.read_excel(filepath)
+            try:
+                # Save file temporarily
+                file.save(filepath)
 
-                    # Validate structure
-                    is_valid, errors = validate_excel_structure(df)
+                file_size_mb = round(os.path.getsize(filepath) / (1024 * 1024), 2)
 
-                    if is_valid:
-                        stats = {
-                            "total_students": len(df),
-                            "total_columns": len(df.columns),
-                            "subjects": [
-                                col for col in df.columns if "marks" in str(col).lower()
-                            ],
-                            "file_name": filename,
-                            "file_size": file_size_mb,
-                        }
+                # Read Excel file
+                if filename.endswith(".xlsx"):
+                    df = pd.read_excel(filepath, engine="openpyxl")
+                else:
+                    df = pd.read_excel(filepath)
 
-                        # Get preview data (first 5 rows)
-                        preview_data = df.head().to_dict("records")
+                # Validate structure
+                is_valid, errors = validate_excel_structure(df)
 
-                        # Store file info in session for processing
-                        session["uploaded_file"] = filepath
-                        session["file_stats"] = stats
+                if is_valid:
+                    stats = {
+                        "total_students": len(df),
+                        "total_columns": len(df.columns),
+                        "subjects": [
+                            col for col in df.columns if "marks" in str(col).lower()
+                        ],
+                        "file_name": filename,
+                        "file_size": file_size_mb,
+                    }
 
-                        upload_success = f"File '{filename}' uploaded successfully! Validated {len(df)} student records."
-                    else:
-                        upload_error = "Validation errors: " + ", ".join(errors)
+                    # Get preview data (first 5 rows)
+                    preview_data = df.head().to_dict("records")
 
-                    # Clean up temporary file if not keeping it
-                    if not is_valid:
-                        if os.path.exists(filepath):
-                            os.remove(filepath)
+                    # Store file info in session for processing
+                    session["uploaded_file"] = filepath
+                    session["file_stats"] = stats
+                    session["preview_data"] = preview_data
 
-                except Exception as e:
-                    upload_error = f"Error processing file: {str(e)}"
-                    # Clean up if file was saved
-                    if "filepath" in locals() and os.path.exists(filepath):
+                    upload_success = f"File '{filename}' uploaded successfully! Validated {len(df)} student records."
+                else:
+                    upload_error = "Validation errors: " + ", ".join(errors)
+
+                # Clean up temporary file if not keeping it
+                if not is_valid:
+                    if os.path.exists(filepath):
                         os.remove(filepath)
-            else:
-                upload_error = (
-                    "Invalid file type. Please upload Excel files only (.xlsx, .xls)"
-                )
+
+            except Exception as e:
+                upload_error = f"Error processing file: {str(e)}"
+                # Clean up if file was saved
+                if "filepath" in locals() and os.path.exists(filepath):
+                    os.remove(filepath)
+        else:
+            upload_error = (
+                "Invalid file type. Please upload Excel files only (.xlsx, .xls)"
+            )
 
     return render_template(
         "dashboard.html",
@@ -340,6 +348,134 @@ def dashboard():
         stats=stats,
         login_success=session.pop("login_success", None),
     )
+
+
+# Results processing route
+@app.route("/process-results", methods=["GET", "POST"])
+def process_results():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+    if not user:
+        session.clear()
+        return redirect(url_for("login"))
+
+    # Check if file was uploaded
+    if "uploaded_file" not in session:
+        return redirect(url_for("dashboard"))
+
+    filepath = session.get("uploaded_file")
+    max_marks = session.get("max_marks")
+
+    try:
+        # Read the uploaded file
+        if filepath.endswith(".xlsx"):
+            df = pd.read_excel(filepath, engine="openpyxl")
+        else:
+            df = pd.read_excel(filepath)
+
+        # Process results
+        results = []
+        subjects = []
+
+        # Identify subject columns (columns containing "marks")
+        for col in df.columns:
+            if "marks" in str(col).lower():
+                subjects.append(str(col))
+
+        # Calculate results for each student
+        for _, row in df.iterrows():
+
+            # Find enrollment column (case-insensitive, allows variations)
+            enrollment_col = None
+            for col in df.columns:
+                if "enrollment" in str(col).lower():
+                    enrollment_col = col
+                    break
+
+            student_data = {
+                "enrollment_no": row.get(enrollment_col),
+                "name": row.get("name", ""),
+                "subjects": {},
+                "total": 0,
+                "percentage": 0,
+                "grade": "F",
+                "status": "FAIL",
+            }
+
+            # Process each subject
+            subject_total = 0
+            for subject in subjects:
+                marks = float(row[subject]) if pd.notna(row[subject]) else 0
+                student_data["subjects"][subject] = marks
+                subject_total += marks
+
+            # Calculate total and percentage
+            student_data["total"] = round(subject_total, 2)
+            student_data["percentage"] = round(
+                (subject_total / (len(subjects) * max_marks)) * 100, 2
+            )
+
+            # Determine grade
+            percentage = student_data["percentage"]
+            if percentage >= 90:
+                student_data["grade"] = "A"
+                student_data["status"] = "PASS"
+            elif percentage >= 75:
+                student_data["grade"] = "B"
+                student_data["status"] = "PASS"
+            elif percentage >= 60:
+                student_data["grade"] = "C"
+                student_data["status"] = "PASS"
+            elif percentage >= 40:
+                student_data["grade"] = "D"
+                student_data["status"] = "PASS"
+            else:
+                student_data["grade"] = "F"
+                student_data["status"] = "FAIL"
+
+            results.append(student_data)
+
+        # Sort students by percentage (descending) to calculate rank
+        results.sort(key=lambda x: x["percentage"], reverse=True)
+
+        # Add rank to each student
+        for i, student in enumerate(results, start=1):
+            student["rank"] = i
+
+        # Calculate summary statistics
+        total_students = len(results)
+        pass_count = sum(1 for s in results if s["status"] == "PASS")
+        fail_count = total_students - pass_count
+        pass_percentage = (
+            round((pass_count / total_students) * 100, 2) if total_students > 0 else 0
+        )
+        max_total = max([s["total"] for s in results]) if results else 0
+
+        summary = {
+            "total_students": total_students,
+            "pass_count": pass_count,
+            "fail_count": fail_count,
+            "pass_percentage": pass_percentage,
+            "max_total": max_total,
+        }
+
+        return render_template(
+            "result.html",
+            user=user,
+            results=results,
+            subjects=subjects,
+            summary=summary,
+            max_marks=max_marks,
+        )
+
+    except Exception as e:
+        return render_template(
+            "dashboard.html",
+            user=user,
+            upload_error=f"Error processing results: {str(e)}",
+        )
 
 
 # Logout route
