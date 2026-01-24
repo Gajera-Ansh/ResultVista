@@ -384,19 +384,18 @@ def process_results():
             if "marks" in str(col).lower():
                 subjects.append(str(col))
 
+        enrollment_col = None
+        for col in df.columns:
+            if "enrollment" in str(col).lower():
+                enrollment_col = col
+                break
+
         # Calculate results for each student
         for _, row in df.iterrows():
 
-            # Find enrollment column (case-insensitive, allows variations)
-            enrollment_col = None
-            for col in df.columns:
-                if "enrollment" in str(col).lower():
-                    enrollment_col = col
-                    break
-
             student_data = {
                 "enrollment_no": row.get(enrollment_col),
-                "name": row.get("name", ""),
+                "name": row.get("name"),
                 "subjects": {},
                 "total": 0,
                 "percentage": 0,
@@ -435,7 +434,8 @@ def process_results():
                 student_data["grade"] = "F"
                 student_data["status"] = "FAIL"
 
-            results.append(student_data)
+            results.append(student_data)# Find enrollment column (case-insensitive, allows variations)
+        
 
         # Sort students by percentage (descending) to calculate rank
         results.sort(key=lambda x: x["percentage"], reverse=True)
@@ -448,16 +448,12 @@ def process_results():
         total_students = len(results)
         pass_count = sum(1 for s in results if s["status"] == "PASS")
         fail_count = total_students - pass_count
-        pass_percentage = (
-            round((pass_count / total_students) * 100, 2) if total_students > 0 else 0
-        )
-        max_total = max([s["total"] for s in results]) if results else 0
+        max_total = max([s["total"] for s in results])
 
         summary = {
             "total_students": total_students,
             "pass_count": pass_count,
             "fail_count": fail_count,
-            "pass_percentage": pass_percentage,
             "max_total": max_total,
         }
 
