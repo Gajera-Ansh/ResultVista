@@ -395,7 +395,7 @@ def process_results():
 
             student_data = {
                 "enrollment_no": row.get(enrollment_col),
-                "name": row.get("name"),
+                "name": row.get("name").upper(),
                 "subjects": {},
                 "total": 0,
                 "percentage": 0,
