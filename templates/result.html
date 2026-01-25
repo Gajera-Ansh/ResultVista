@@ -585,9 +585,13 @@ Process Results - ResultVista
                             <i class="bi bi-sort-alpha-up"></i>
                             Name (Z to A)
                         </div>
-                        <div class="sort-option" data-sort="status">
-                            <i class="bi bi-filter-circle"></i>
-                            Status (Pass First)
+                        <div class="sort-option" data-sort="enrollment-desc">
+                            <i class="bi bi-sort-numeric-up"></i>
+                            Enrollment (High to Low)
+                        </div>
+                        <div class="sort-option" data-sort="enrollment-asc">
+                            <i class="bi bi-sort-numeric-down"></i>
+                            Enrollment (Low to High)
                         </div>
                     </div>
                 </div>
@@ -635,7 +639,7 @@ Process Results - ResultVista
                     <tr>
                         <td>{{ student.rank }}</td>
                         <td>{{ student.enrollment_no }}</td>
-                        <td>{{ student.name }}</td>
+                        <td><strong>{{ student.name|upper }}</strong></td>
                         {% for subject in subjects %}
                         <td>{{ student.subjects[subject] }}</td>
                         {% endfor %}
@@ -740,13 +744,13 @@ Process Results - ResultVista
                         case 'name-desc':
                             return cellsB[2].textContent.localeCompare(cellsA[2].textContent);
 
-                        case 'status':
-                            const statusA = cellsA[statusIndex].textContent.trim();
-                            const statusB = cellsB[statusIndex].textContent.trim();
-                            // Show PASS first, then FAIL
-                            if (statusA === 'PASS' && statusB === 'FAIL') return -1;
-                            if (statusA === 'FAIL' && statusB === 'PASS') return 1;
-                            return 0;
+                        case 'enrollment-asc':
+                            return parseFloat(cellsA[1].textContent) -
+                                parseFloat(cellsB[1].textContent);
+
+                        case 'enrollment-desc':
+                            return parseFloat(cellsB[1].textContent) -
+                                parseFloat(cellsA[1].textContent);
 
                         default:
                             return 0;

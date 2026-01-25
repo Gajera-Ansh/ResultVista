@@ -389,13 +389,19 @@ def process_results():
             if "enrollment" in str(col).lower():
                 enrollment_col = col
                 break
+            
+        name = None
+        for col in df.columns:
+            if "name" in str(col).lower():
+                name = col
+                break
 
         # Calculate results for each student
         for _, row in df.iterrows():
 
             student_data = {
                 "enrollment_no": row.get(enrollment_col),
-                "name": row.get("name").upper(),
+                "name": row.get(name),
                 "subjects": {},
                 "total": 0,
                 "percentage": 0,
