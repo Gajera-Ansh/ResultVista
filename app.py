@@ -10,6 +10,8 @@ from flask import (
 from flask_bcrypt import Bcrypt
 from database import db, User
 from authlib.integrations.flask_client import OAuth
+import re
+from mail import init_mail, send_welcome_email
 import os
 import pandas as pd
 from werkzeug.utils import secure_filename
@@ -21,9 +23,16 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/us
 app.config["SECRET_KEY"] = "4227"
 bcrypt = Bcrypt(app)
 
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = "resultvista.official@gmail.com"
+app.config["MAIL_PASSWORD"] = "zdexrbyqssuntrqk"
+app.config["MAIL_DEFAULT_SENDER"] = "resultvista.official@gmail.com"
+init_mail(app)
+
 app.config["UPLOAD_FOLDER"] = "uploads"
 app.config["ALLOWED_EXTENSIONS"] = {"xlsx", "xls"}
-
 db.init_app(app)
 
 with app.app_context():
@@ -83,6 +92,7 @@ def auth_callback():
         )
         db.session.add(user)
         db.session.commit()
+        send_welcome_email(email, name)
         session["user_id"] = user.id
 
     return redirect(url_for("dashboard"))
@@ -109,6 +119,15 @@ def register():
                 **form_data,
             )
 
+        # validate email format
+        pat = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        if not re.match(pat, email):
+            return render_template(
+                "register.html",
+                error="Invalid email format",
+                **form_data,
+            )
+
         # check password length
         if len(password) < 8:
             return render_template(
@@ -128,6 +147,7 @@ def register():
         new_user = User(name=name, email=email, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
+        send_welcome_email(email, name)
         return redirect(url_for("login"))
 
     return render_template("register.html")
