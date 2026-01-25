@@ -188,14 +188,14 @@ def validate_excel_structure(df):
     errors = []
 
     # Check required columns
-    required_columns = ["sr. no", "enrollment number", "name"]
+    required_columns = ["sr", "enrollment", "name"]
 
     # Convert column names to lowercase for comparison
     actual_columns = [str(col).strip().lower() for col in df.columns]
 
     # Check for required columns
     for req_col in required_columns:
-        if req_col not in actual_columns:
+        if req_col not in str(actual_columns):
             errors.append(f"Missing required column: '{req_col}'")
 
     # Check for at least one marks column
@@ -205,11 +205,30 @@ def validate_excel_structure(df):
             "No marks/subject columns found. Add at least one subject column."
         )
 
+    # Check for valid data type for 'sr' column
+    sr_columns = [col for col in df.columns if "sr" in str(col).lower()]
+    for col in sr_columns:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            errors.append("'sr.no' column should contain numeric values")
+
+    # Check for valid data type for 'enrollment number'
+    enrollment_columns = [col for col in df.columns if "enrollment" in str(col).lower()]
+    for col in enrollment_columns:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            errors.append("'enrollment' column should contain numeric values")
+
     # Check for valid data type for 'marks'
     marks_columns = [col for col in df.columns if "marks" in col.lower()]
     for col in marks_columns:
         if not pd.api.types.is_numeric_dtype(df[col]):
             errors.append(f"'{col}' column should contain numeric values")
+
+    # Check for extra columns
+    allowed_columns = len(required_columns) + len(marks_columns)
+    if len(actual_columns) > allowed_columns:
+        errors.append(
+            f"There are {len(actual_columns) - allowed_columns} extra columns found."
+        )
 
     # Check if any marks exceed max_marks
     max_marks = request.form.get("total_marks")
@@ -223,14 +242,6 @@ def validate_excel_structure(df):
             errors.append(
                 f"Values in '{col}' exceed the maximum allowed marks of {max_marks}"
             )
-
-    # Check for valid data type for 'enrollment number'
-    enrollment_columns = [
-        col for col in df.columns if "enrollment number" in col.lower()
-    ]
-    for col in enrollment_columns:
-        if not pd.api.types.is_numeric_dtype(df[col]):
-            errors.append("'enrollment number' column should contain numeric values")
 
     if errors:
         return False, errors
@@ -389,7 +400,7 @@ def process_results():
             if "enrollment" in str(col).lower():
                 enrollment_col = col
                 break
-            
+
         name = None
         for col in df.columns:
             if "name" in str(col).lower():
@@ -440,8 +451,9 @@ def process_results():
                 student_data["grade"] = "F"
                 student_data["status"] = "FAIL"
 
-            results.append(student_data)# Find enrollment column (case-insensitive, allows variations)
-        
+            results.append(
+                student_data
+            )  # Find enrollment column (case-insensitive, allows variations)
 
         # Sort students by percentage (descending) to calculate rank
         results.sort(key=lambda x: x["percentage"], reverse=True)
@@ -476,7 +488,7 @@ def process_results():
         return render_template(
             "dashboard.html",
             user=user,
-            upload_error=f"Error processing results: {str(e)}",
+            # upload_error=f"Error processing results: {str(e)}",
         )
 
 
