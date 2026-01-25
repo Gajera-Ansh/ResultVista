@@ -427,7 +427,7 @@ def process_results():
             elif percentage >= 60:
                 student_data["grade"] = "C"
                 student_data["status"] = "PASS"
-            elif percentage >= 40:
+            elif percentage >= 33:
                 student_data["grade"] = "D"
                 student_data["status"] = "PASS"
             else:
