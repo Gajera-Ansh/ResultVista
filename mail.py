@@ -2,7 +2,6 @@ from flask_mail import Mail, Message
 
 mail = Mail()
 
-
 def init_mail(app):
     # Initialize mail with Flask app
 
