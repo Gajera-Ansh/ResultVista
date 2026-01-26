@@ -11,7 +11,7 @@ from flask_bcrypt import Bcrypt
 from database import db, User
 from authlib.integrations.flask_client import OAuth
 import re
-from mail import init_mail, send_welcome_email
+from mail import init_mail, send_welcome_email, send_delete_account_email
 import os
 import pandas as pd
 from werkzeug.utils import secure_filename
@@ -769,6 +769,7 @@ def delete_account():
     user = User.query.get(session["user_id"])
     if user:
         # Delete user from database
+        send_delete_account_email(user.email, user.name)
         db.session.delete(user)
         db.session.commit()
 
