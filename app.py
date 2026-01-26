@@ -11,11 +11,14 @@ from flask_bcrypt import Bcrypt
 from database import db, User
 from authlib.integrations.flask_client import OAuth
 import re
-from mail import init_mail, send_welcome_email, send_delete_account_email
 import os
 import pandas as pd
 from werkzeug.utils import secure_filename
 import uuid
+from mail import init_mail, send_welcome_email, send_delete_account_email
+from cleanup_old_files import cleanup_old_files
+
+cleanup_old_files()
 
 app = Flask(__name__)
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
