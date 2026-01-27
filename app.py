@@ -235,7 +235,7 @@ def validate_excel_structure(df):
     # Check for valid data type for 'sr' column
     sr_columns = [col for col in df.columns if "sr" in str(col).lower()]
     for col in sr_columns:
-        if not pd.api.types.is_numeric_dtype(df[col]):
+        if not pd.api.types.is_integer_dtype(df[col]):
             errors.append("'sr.no' column should contain numeric values")
 
     # Check for valid data type for 'enrollment number'
@@ -243,6 +243,16 @@ def validate_excel_structure(df):
     for col in enrollment_columns:
         if not pd.api.types.is_numeric_dtype(df[col]):
             errors.append("'enrollment' column should contain numeric values")
+
+    # Check for only alphabetic characters and space in name column
+    name_columns = [col for col in df.columns if "name" in str(col).lower()]
+    name_pattern = re.compile(r"^[A-Za-z\s]+$")
+    for col in name_columns:
+        for name in df[col]:
+            if not isinstance(name, str) or not name_pattern.match(name):
+                errors.append(
+                    "'name' column should contain only alphabetic characters with a single spaces"
+                )
 
     # Check for valid data type for 'marks'
     marks_columns = [col for col in df.columns if "marks" in col.lower()]
