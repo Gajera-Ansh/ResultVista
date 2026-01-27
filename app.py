@@ -406,9 +406,6 @@ def process_results():
     filepath = session.get("uploaded_file")
     max_marks = session.get("max_marks")
 
-    session["uploaded_file"] = filepath  # Ensure filepath is still in session
-    session["max_marks"] = max_marks  # Ensure max_marks is still in session
-
     try:
         # Read the uploaded file
         if filepath.endswith(".xlsx"):
