@@ -450,7 +450,7 @@ def process_results():
             # Process each subject
             subject_total = 0
             for subject in subjects:
-                marks = float(row[subject]) if pd.notna(row[subject]) else 0
+                marks = float(row[subject])
                 student_data["subjects"][subject] = marks
                 subject_total += marks
 
@@ -478,9 +478,7 @@ def process_results():
                 student_data["grade"] = "F"
                 student_data["status"] = "FAIL"
 
-            results.append(
-                student_data
-            )  # Find enrollment column (case-insensitive, allows variations)
+            results.append(student_data)
 
         # Sort students by percentage (descending) to calculate rank
         results.sort(key=lambda x: x["percentage"], reverse=True)
@@ -545,7 +543,7 @@ def show_charts():
         session.pop("preview_data", None)
         return redirect(url_for("dashboard"))
 
-    max_marks = session.get("max_marks", 100)
+    max_marks = session.get("max_marks")
 
     try:
         # Read the uploaded file
@@ -570,31 +568,11 @@ def show_charts():
                 enrollment_col = col
                 break
 
-        if not enrollment_col:
-            # Try to find any column that might be enrollment
-            for col in df.columns:
-                if any(
-                    keyword in str(col).lower()
-                    for keyword in ["enroll", "roll", "id", "number"]
-                ):
-                    enrollment_col = col
-                    break
-
         # Find name column
         for col in df.columns:
             if "name" in str(col).lower():
                 name_col = col
                 break
-
-        if not name_col:
-            # Try to find any column that might be name
-            for col in df.columns:
-                if any(
-                    keyword in str(col).lower()
-                    for keyword in ["name", "student", "fullname"]
-                ):
-                    name_col = col
-                    break
 
         # Prepare chart data
         chart_data = {
@@ -616,11 +594,12 @@ def show_charts():
 
         # Calculate subject statistics
         for subject in subjects:
+            # get marks column and drop NaN values
             marks = df[subject].dropna()
             # Convert numpy types to Python native types
             avg_val = float(round(marks.mean(), 2))
-            max_val = float(round(marks.max(), 2))
-            min_val = float(round(marks.min(), 2))
+            max_val = float(round(marks.max()))
+            min_val = float(round(marks.min()))
 
             chart_data["subject_avg"].append(avg_val)
             chart_data["subject_max"].append(max_val)
@@ -629,11 +608,11 @@ def show_charts():
         # Calculate individual student data for charts
         student_percentages = []
 
-        for index, row in df.iterrows():
+        for _, row in df.iterrows():
             # Calculate percentage
             total_marks = 0
             for subject in subjects:
-                marks = float(row[subject]) if pd.notna(row[subject]) else 0
+                marks = float(row[subject])
                 total_marks += marks
 
             percentage = float(
@@ -672,60 +651,33 @@ def show_charts():
                 chart_data["performance_ranges"]["0-32"] += 1
 
             # Collect top 5 students
-            if name_col and enrollment_col:
-                student_name = (
-                    str(row[name_col])
-                    if pd.notna(row[name_col])
-                    else f"Student {index+1}"
-                )
-                student_enrollment = (
-                    str(row[enrollment_col])
-                    if pd.notna(row[enrollment_col])
-                    else f"ENR{index+1}"
-                )
+            student_name = str(row[name_col])
+            student_enrollment = str(row[enrollment_col])
 
-                chart_data["top_students"].append(
-                    {
-                        "name": student_name,
-                        "enrollment": student_enrollment,
-                        "percentage": float(percentage),
-                        "grade": grade,
-                    }
-                )
-            else:
-                # If columns not found, use generic data
-                chart_data["top_students"].append(
-                    {
-                        "name": f"Student {index+1}",
-                        "enrollment": f"ENR{index+1}",
-                        "percentage": float(percentage),
-                        "grade": grade,
-                    }
-                )
+            chart_data["top_students"].append(
+                {
+                    "name": student_name,
+                    "enrollment": student_enrollment,
+                    "percentage": float(percentage),
+                    "grade": grade,
+                }
+            )
 
         # Sort and get top 5 students
         chart_data["top_students"].sort(key=lambda x: x["percentage"], reverse=True)
         chart_data["top_students"] = chart_data["top_students"][:5]
 
         # Calculate overall statistics
-        if student_percentages:
-            chart_data["overall_avg"] = float(
-                round(sum(student_percentages) / len(student_percentages), 2)
-            )
-            chart_data["overall_max"] = float(round(max(student_percentages), 2))
-            chart_data["overall_min"] = float(round(min(student_percentages), 2))
-        else:
-            chart_data["overall_avg"] = 0.0
-            chart_data["overall_max"] = 0.0
-            chart_data["overall_min"] = 0.0
+        chart_data["overall_avg"] = float(
+            round(sum(student_percentages) / len(student_percentages), 2)
+        )
+        chart_data["overall_max"] = float(max(student_percentages))
+        chart_data["overall_min"] = float(min(student_percentages))
 
         # Calculate pass percentage
-        if len(df) > 0:
-            chart_data["pass_percentage"] = float(
-                round((chart_data["pass_fail"]["PASS"] / len(df)) * 100, 2)
-            )
-        else:
-            chart_data["pass_percentage"] = 0.0
+        chart_data["pass_percentage"] = float(
+            round((chart_data["pass_fail"]["PASS"] / len(df)) * 100, 2)
+        )
 
         # Convert all numpy types to Python native types
         chart_data["grade_distribution"] = {
@@ -737,9 +689,6 @@ def show_charts():
         chart_data["performance_ranges"] = {
             k: int(v) for k, v in chart_data["performance_ranges"].items()
         }
-
-        # Also ensure subjects list contains strings
-        chart_data["subjects"] = [str(subject) for subject in chart_data["subjects"]]
 
         # Render the template
         return render_template(
