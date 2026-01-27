@@ -562,7 +562,7 @@ Visual Charts - ResultVista
         };
 
         // Max marks from Flask context
-        const maxMarks = "{{ max_marks|default (100) | int }}";
+        const maxMarks = "{{ max_marks | int }}";
 
         // Colors for charts
         const colors = {
@@ -586,8 +586,6 @@ Visual Charts - ResultVista
         }, 500);
 
         function initCharts() {
-            console.log('Initializing charts with data:', chartData); // Debug log
-
             // 1. Pass/Fail Pie Chart
             const passFailCtx = document.getElementById('passFailChart');
             if (passFailCtx) {
@@ -618,8 +616,8 @@ Visual Charts - ResultVista
                             tooltip: {
                                 callbacks: {
                                     label: function (context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
+                                        const label = context.label;
+                                        const value = context.raw;
                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                         const percentage = Math.round((value / total) * 100);
                                         return `${label}: ${value} students (${percentage}%)`;
@@ -641,11 +639,11 @@ Visual Charts - ResultVista
                         datasets: [{
                             label: 'Number of Students',
                             data: [
-                                chartData.gradeDistribution.A || 0,
-                                chartData.gradeDistribution.B || 0,
-                                chartData.gradeDistribution.C || 0,
-                                chartData.gradeDistribution.D || 0,
-                                chartData.gradeDistribution.F || 0
+                                chartData.gradeDistribution.A,
+                                chartData.gradeDistribution.B,
+                                chartData.gradeDistribution.C,
+                                chartData.gradeDistribution.D,
+                                chartData.gradeDistribution.F
                             ],
                             backgroundColor: [
                                 colors.teal,
@@ -703,11 +701,11 @@ Visual Charts - ResultVista
                         labels: ['90-100%', '75-89%', '60-74%', '33-59%', '0-32%'],
                         datasets: [{
                             data: [
-                                chartData.performanceRanges["90-100"] || 0,
-                                chartData.performanceRanges["75-89"] || 0,
-                                chartData.performanceRanges["60-74"] || 0,
-                                chartData.performanceRanges["33-59"] || 0,
-                                chartData.performanceRanges["0-32"] || 0
+                                chartData.performanceRanges["90-100"],
+                                chartData.performanceRanges["75-89"],
+                                chartData.performanceRanges["60-74"],
+                                chartData.performanceRanges["33-59"],
+                                chartData.performanceRanges["0-32"]
                             ],
                             backgroundColor: [
                                 colors.teal,
@@ -805,19 +803,19 @@ Visual Charts - ResultVista
                         datasets: [
                             {
                                 label: 'Average',
-                                data: chartData.subjectAvg || [],
+                                data: chartData.subjectAvg,
                                 backgroundColor: colors.primary,
                                 borderRadius: 6
                             },
                             {
                                 label: 'Maximum',
-                                data: chartData.subjectMax || [],
+                                data: chartData.subjectMax,
                                 backgroundColor: colors.success,
                                 borderRadius: 6
                             },
                             {
                                 label: 'Minimum',
-                                data: chartData.subjectMin || [],
+                                data: chartData.subjectMin,
                                 backgroundColor: colors.danger,
                                 borderRadius: 6
                             }
@@ -994,7 +992,6 @@ Visual Charts - ResultVista
                     pdf.setFontSize(10);
                     pdf.setTextColor(100);
                     pdf.text(`Total Charts: ${chartElements.length}`, margin, yPosition);
-                    pdf.text(`Report ID: ${Date.now().toString().slice(-6)}`, margin + 100, yPosition);
                 }
 
                 // Add page numbers
