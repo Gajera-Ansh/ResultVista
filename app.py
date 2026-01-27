@@ -750,7 +750,11 @@ def show_charts():
         )
 
     except Exception as e:
-        print(f"ERROR in show_charts: {str(e)}")
+        return render_template(
+            "dashboard.html",
+            user=user,
+            # upload_error=f"Error generating charts: {str(e)}",
+        )
 
 
 # Logout route
