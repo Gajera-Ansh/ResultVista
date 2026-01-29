@@ -20,14 +20,14 @@ from cleanup_old_files import cleanup_old_files
 from dotenv import load_dotenv
 
 cleanup_old_files()
+load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/user"
-app.config["SECRET_KEY"] = "4227"
+app.config["SECRET_KEY"] = os.environ.get("SECERT_KEY")
 bcrypt = Bcrypt(app)
 
-load_dotenv() # Load environment variables from .env file
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
