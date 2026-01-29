@@ -17,6 +17,7 @@ from werkzeug.utils import secure_filename
 import uuid
 from mail import init_mail, send_welcome_email, send_delete_account_email
 from cleanup_old_files import cleanup_old_files
+from dotenv import load_dotenv
 
 cleanup_old_files()
 
@@ -26,12 +27,13 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/us
 app.config["SECRET_KEY"] = "4227"
 bcrypt = Bcrypt(app)
 
+load_dotenv() # Load environment variables from .env file
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = "resultvista.official@gmail.com"
-app.config["MAIL_PASSWORD"] = "zdexrbyqssuntrqk"
-app.config["MAIL_DEFAULT_SENDER"] = "resultvista.official@gmail.com"
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
 
 # Initialize mail with Flask app
 init_mail(app)

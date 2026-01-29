@@ -1,9 +1,0 @@
-Flask
-Flask-Bcrypt
-Flask-SQLAlchemy
-Flask-Mail
-Authlib
-pandas
-openpyxl
-pymysql
-Werkzeug
