@@ -23,7 +23,7 @@ from flask_mail import Mail, Message
 from mail import mail, init_mail
 import reportlab
 
-cleanup_old_files()
+cleanup_old_files() # Clean up old files on server startup
 load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
