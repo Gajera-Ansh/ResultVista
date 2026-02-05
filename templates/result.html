@@ -811,14 +811,40 @@ Process Results - ResultVista
 
                     // Create workbook with just the results sheet
                     const workbook = XLSX.utils.book_new();
-                    const worksheet = XLSX.utils.table_to_sheet(tableClone);
+                    const worksheet = XLSX.utils.table_to_sheet(tableClone, { raw: true });
 
-                    // Set reasonable column widths
+                    // FORCE Enrollment No column to TEXT
+                    const range = XLSX.utils.decode_range(worksheet['!ref']);
+
+                    for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: R, c: 2 }); // column 1 = Enrollment No
+                        if (worksheet[cellAddress]) {
+                            worksheet[cellAddress].t = 's';           // string type
+                            worksheet[cellAddress].v = String(worksheet[cellAddress].v);
+                        }
+                    }
+
+                    // Calculate column widths based on header + cell content
                     const colWidths = [];
-                    const headerCells = tableClone.querySelectorAll('thead th');
-                    headerCells.forEach((cell, index) => {
-                        colWidths.push({ wch: Math.max(8, cell.textContent.length + 2) });
-                    });
+                    const rows = tableClone.querySelectorAll('tr');
+
+                    // Determine number of columns from header
+                    const colCount = tableClone.querySelectorAll('thead th').length;
+
+                    for (let col = 0; col < colCount; col++) {
+                        let maxLength = 8; // minimum width
+
+                        rows.forEach(row => {
+                            const cells = row.querySelectorAll('th, td');
+                            if (cells[col]) {
+                                const text = cells[col].textContent.trim();
+                                maxLength = Math.max(maxLength, text.length);
+                            }
+                        });
+
+                        colWidths.push({ wch: maxLength + 2 }); // padding
+                    }
+
                     worksheet['!cols'] = colWidths;
 
                     // Add worksheet to workbook
