@@ -1,12 +1,13 @@
 Flask
 Flask-Bcrypt
-Flask-SQLAlchemy
 Flask-Mail
-Flask_Session
+Flask-Session
+Flask-SQLAlchemy
 Authlib
+python-dotenv
 pandas
 openpyxl
+reportlab
+matplotlib
 pymysql
 Werkzeug
-python-dotenv
-matplotlib
