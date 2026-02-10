@@ -152,11 +152,15 @@ def register():
                 **form_data,
             )
 
-        # check password length
-        if len(password) < 8:
+        # validate password strength
+        password_regex = re.compile(
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+        )
+        
+        if not password_regex.match(password):
             return render_template(
                 "register.html",
-                error="Password must be at least 8 characters long",
+                error="Password must be at least 8 characters long and include uppercase, lowercase, number, and special character",
                 **form_data,
             )
 
@@ -699,6 +703,7 @@ def generate_student_pdf(student, subjects, max_marks):
     from reportlab.lib.utils import ImageReader
     from io import BytesIO
     import matplotlib
+
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
