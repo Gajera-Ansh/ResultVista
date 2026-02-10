@@ -40,7 +40,7 @@ Session(app)  # Initialize the session extension
 
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/user"
-app.config["SECRET_KEY"] = os.environ.get("SECERT_KEY")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 bcrypt = Bcrypt(app)
 
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
