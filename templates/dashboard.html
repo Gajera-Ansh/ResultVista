@@ -247,6 +247,12 @@ Dashboard - ResultVista
         font-weight: 600;
     }
 
+    .truncate-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     /* Preview Table */
     .preview-section {
         margin-top: 40px;
@@ -654,7 +660,7 @@ Dashboard - ResultVista
                 <div class="stat-icon">
                     <i class="bi bi-file-earmark-text"></i>
                 </div>
-                <div class="stat-value">{{ stats.file_name }}</div>
+                <div class="stat-value truncate-text" title="{{ stats.file_name }}">{{ stats.file_name }}</div>
                 <div class="stat-label">File Name</div>
             </div>
         </div>
