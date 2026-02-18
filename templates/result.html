@@ -265,6 +265,20 @@ Process Results - ResultVista
     }
 
     /* Action Buttons */
+    .btn-back {
+        background: rgba(255, 255, 255, 0.701);
+        color: var(--primary-blue);
+        border: 3px solid var(--primary-blue);
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .btn-back:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+
     .btn-primary {
         background: var(--secondary-blue);
         color: white;
@@ -527,6 +541,12 @@ Process Results - ResultVista
             <div>
                 <h2 class="fw-bold mb-2">Results Analysis</h2>
                 <p class="mb-0 opacity-75">Detailed analysis of student performance</p>
+            </div>
+            <div>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-back">
+                    <i class="bi bi-arrow-left"></i>
+                    <b>Back to Dashboard</b>
+                </a>
             </div>
         </div>
 

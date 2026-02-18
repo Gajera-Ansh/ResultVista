@@ -196,6 +196,20 @@ Visual Charts - ResultVista
     }
 
     /* Buttons */
+    .btn-back {
+        background: rgba(255, 255, 255, 0.701);
+        color: var(--primary-blue);
+        border: 3px solid var(--primary-blue);
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .btn-back:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+
     .btn-success {
         background: var(--accent-teal);
         color: white;
@@ -385,6 +399,12 @@ Visual Charts - ResultVista
             <div>
                 <h2 class="fw-bold mb-2">Visual Analytics</h2>
                 <p class="mb-0 opacity-75">Interactive charts and performance analysis</p>
+            </div>
+            <div>
+                <a href="{{ url_for('process_results') }}" class="btn btn-back">
+                    <i class="bi bi-arrow-left"></i>
+                    <b>Back to Results</b>
+                </a>
             </div>
         </div>
 
