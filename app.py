@@ -5,7 +5,6 @@ from flask import (
     redirect,
     url_for,
     session,
-    make_response,
     flash,
 )
 from flask_bcrypt import Bcrypt
@@ -19,9 +18,8 @@ import uuid
 from mail import init_mail, send_welcome_email, send_delete_account_email
 from cleanup_old_files import cleanup_old_files
 from dotenv import load_dotenv
-from flask_mail import Mail, Message
+from flask_mail import Message
 from mail import mail, init_mail
-import reportlab
 from flask_session import Session
 
 cleanup_old_files()  # Clean up old files on server startup
@@ -636,7 +634,6 @@ def send_student_result():
     try:
         enrollment_no = int(request.form.get("enrollment_no"))
         student_email = request.form.get("student_email").strip()
-        # message = request.form.get("message", "")
 
         # Get student from processed results
         results = session.get("processed_results")
