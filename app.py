@@ -347,7 +347,7 @@ def dashboard():
         if file.filename == "":
             upload_error = "No file selected"
         elif file and allowed_file(file.filename):
-            # Generate unique filename
+            # Convert filename to simple name
             filename = secure_filename(file.filename)
             # Get 32-char rendom hexadecimal string with simple file name
             unique_filename = f"{uuid.uuid4().hex}_{filename}"
