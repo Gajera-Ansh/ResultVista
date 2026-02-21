@@ -1,14 +1,15 @@
 # ResultVista
 
 ## Overview
-ResultVista is a comprehensive solution designed to streamline the process of result management for educational institutions. This project focuses on providing users with easy access to results, analytics, and reporting functionalities.
+ResultVista is a comprehensive solution designed to streamline the process of result for educational institutions. This project focuses on providing users with easy access to results, analytics functionalities.
 
 ## Features
 - **User-Friendly Interface:** An intuitive interface for easy navigation.
-- **Result Management:** Efficiently manage and modify students' results.
+- **Calculate Result:** User upload the excel file with our requirement than user get a result table which have **total, percentage, grade, status**
 - **Analytics Dashboard:** Visual representation of data to help analyze performance trends.
-- **Secure Access:** Role-based access control to protect sensitive data.
-- **Reporting:** Generate detailed reports for administration and stakeholders.
+- **Download file:** User can download the result table in form of **excel file**, and also user can download the **chart PDF**.
+- **Mail Integration:** When user create new account or delete account, user will get a confirmatioin mail.
+- **Individual Student:** User can see any student result individually by clicking on row and if user want to share result to that student than enter email id of that student and the result PDF will be sent.
 
 ## Setup Instructions
 1. **Clone the Repository:**
@@ -17,35 +18,22 @@ ResultVista is a comprehensive solution designed to streamline the process of re
    cd ResultVista
    ```
 
-2. **Install Dependencies:**
-   Make sure you have Node.js installed. Then, run:
+2. **Install Libraries:**
    ```bash
-   npm install
+   pip install -r requirements.txt
    ```
 
 3. **Configuration:**
    Create a `.env` file in the root directory and add the necessary configuration variables as per the `.env.example` file.
 
-4. **Run Application:**
-   Start the application with:
-   ```bash
-   npm start
-   ```
+4. **Database setup:**
+   open XAMPP and create a database **user**.
 
-5. **Access ResultVista:**
-   Open your browser and navigate to `http://localhost:3000` to access the application.
+5. **Run the project:**
+   run app.py file and click on the first link
 
 ## Usage Guidelines
 - **Logging In:** Use your credentials to log into the application. 
-- **Navigating to Results:** Find results under the 'Results' section of the sidebar.
-- **Generating Reports:** Use the reporting feature to generate PDF or CSV export of results and analytics.
+- **Upload excel file:** Upload excel file which in **example/Student_Marksheet_50_Students.xlsx** than click on **upload and validate** button
+- **Generating Result:** after clicking on **upload and validate** button scroll down and click on **Process Results**
 
-## Contributing
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----  
-
-For any issues or feature requests, please open an issue in the repository or contact the project maintainers.

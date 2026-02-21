@@ -11,3 +11,4 @@ reportlab
 matplotlib
 pymysql
 Werkzeug
+gunicorn
