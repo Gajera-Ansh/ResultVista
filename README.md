@@ -27,9 +27,9 @@ ResultVista is a comprehensive solution designed to streamline the process of re
    Create a `.env` file in the root directory and add the necessary configuration variables as per the `.env.example` file.
 
 4. **Database setup:**
-   ## In app.py
-   1. uncomment line no. 39
-   2. comment line no. 40
+   **In app.py**
+   1. uncomment line no. 39.
+   2. comment line no. 40.
    open XAMPP and create a database **user**.
 
 6. **Run the project:**
