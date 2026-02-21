@@ -3,6 +3,7 @@ Flask-Bcrypt
 Flask-Mail
 Flask-Session
 Flask-SQLAlchemy
+requests
 Authlib
 python-dotenv
 pandas
