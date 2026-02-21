@@ -36,8 +36,7 @@ app.config["SESSION_COOKIE_SECURE"] = False
 
 Session(app)  # Initialize the session extension
 
-# app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/user"
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/user"
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 bcrypt = Bcrypt(app)
 
@@ -1016,5 +1015,4 @@ def delete_account():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=5000)
