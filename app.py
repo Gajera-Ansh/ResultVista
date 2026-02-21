@@ -8,7 +8,7 @@ from flask import (
     flash,
 )
 from flask_bcrypt import Bcrypt
-from database import db, User
+from database import db, Users
 from authlib.integrations.flask_client import OAuth
 import re
 import os
@@ -100,13 +100,13 @@ def auth_callback():
     email = user_info.get("email")
     picture = user_info.get("picture")
 
-    existing_user = User.query.filter_by(email=email).first()
+    existing_user = Users.query.filter_by(email=email).first()
     if existing_user:
         session["user_id"] = existing_user.id
         session["login_success"] = True
     else:
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-        user = User(
+        user = Users(
             password=hashed_password,
             name=name,
             email=email,
@@ -133,7 +133,7 @@ def register():
         form_data = {"name": name, "email": email}
 
         # check if user already exists
-        existing_user = User.query.filter_by(email=email).first()
+        existing_user = Users.query.filter_by(email=email).first()
         if existing_user:
             return render_template(
                 "register.html",
@@ -170,7 +170,7 @@ def register():
 
         # if all validations pass, create new user
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-        new_user = User(name=name, email=email, password=hashed_password)
+        new_user = Users(name=name, email=email, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         send_welcome_email(email, name)
@@ -189,7 +189,7 @@ def login():
         # Store form data
         form_data = {"email": email}
 
-        user = User.query.filter_by(email=email).first()
+        user = Users.query.filter_by(email=email).first()
 
         # validate user credentials
         if user and bcrypt.check_password_hash(user.password, password):
@@ -313,7 +313,7 @@ def dashboard():
         return redirect(url_for("login"))
 
     # Fetch user details
-    user = User.query.get(session["user_id"])
+    user = Users.query.get(session["user_id"])
 
     # If user not found, clear session and redirect to login
     if not user:
@@ -431,7 +431,7 @@ def process_results():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    user = User.query.get(session["user_id"])
+    user = Users.query.get(session["user_id"])
     if not user:
         session.clear()
         return redirect(url_for("login"))
@@ -563,7 +563,7 @@ def student_detail(enrollment_no):
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    user = User.query.get(session["user_id"])
+    user = Users.query.get(session["user_id"])
     if not user:
         session.clear()
         return redirect(url_for("login"))
@@ -626,7 +626,7 @@ def send_student_result():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    user = User.query.get(session["user_id"])
+    user = Users.query.get(session["user_id"])
     if not user:
         session.clear()
         return redirect(url_for("login"))
@@ -806,7 +806,7 @@ def show_charts():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    user = User.query.get(session["user_id"])
+    user = Users.query.get(session["user_id"])
     if not user:
         session.clear()
         return redirect(url_for("login"))
@@ -1002,7 +1002,7 @@ def delete_account():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    user = User.query.get(session["user_id"])
+    user = Users.query.get(session["user_id"])
     if user:
         # Delete user from database
         send_delete_account_email(user.email, user.name)
