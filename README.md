@@ -27,9 +27,12 @@ ResultVista is a comprehensive solution designed to streamline the process of re
    Create a `.env` file in the root directory and add the necessary configuration variables as per the `.env.example` file.
 
 4. **Database setup:**
+   **In app.py**
+   1. uncomment line no. 39.
+   2. comment line no. 40.
    open XAMPP and create a database **user**.
 
-5. **Run the project:**
+6. **Run the project:**
    run app.py file and click on the first link
 
 ## Usage Guidelines
@@ -37,3 +40,4 @@ ResultVista is a comprehensive solution designed to streamline the process of re
 - **Upload excel file:** Upload excel file which in **example/Student_Marksheet_50_Students.xlsx** than click on **upload and validate** button
 - **Generating Result:** after clicking on **upload and validate** button scroll down and click on **Process Results**
 
+**Project link:**
