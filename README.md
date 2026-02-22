@@ -28,8 +28,8 @@ ResultVista is a comprehensive solution designed to streamline the process of re
 
 4. **Database setup:**
    **In app.py**
-   1. uncomment line no. 39.
-   2. comment line no. 40.
+   1. uncomment line no. 30.
+   2. comment line no. 31.
    open XAMPP and create a database **user**.
 
 6. **Run the project:**
