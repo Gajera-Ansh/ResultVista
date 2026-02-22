@@ -29,7 +29,7 @@ app = Flask(__name__)
 
 # Configure server-side session storage
 app.config["SESSION_TYPE"] = "sqlalchemy"
-app.config["SESSION_FILE_DIR"] = db
+app.config["SESSION_SQLALCHEMY"] = db
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SESSION_COOKIE_SECURE"] = False
