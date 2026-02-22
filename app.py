@@ -28,8 +28,8 @@ load_dotenv()  # Load environment variables from .env file
 app = Flask(__name__)
 
 # Configure server-side session storage
-app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_FILE_DIR"] = "./flask_session"
+app.config["SESSION_TYPE"] = "sqlalchemy"
+app.config["SESSION_FILE_DIR"] = db
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SESSION_COOKIE_SECURE"] = False
