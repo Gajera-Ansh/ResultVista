@@ -27,19 +27,20 @@ load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
 
-# Configure server-side session storage
-# app.config["SESSION_TYPE"] = "filesystem"
-# app.config["SESSION_FILE_DIR"] = "./flask_session"
-app.config["SESSION_TYPE"] = "sqlalchemy"
-app.config["SESSION_SQLALCHEMY"] = db
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_USE_SIGNER"] = True
-app.config["SESSION_COOKIE_SECURE"] = False
-
 # app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/user"
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 bcrypt = Bcrypt(app)
+
+# Initialize database
+db.init_app(app)
+
+# Configure server-side session storage
+app.config["SESSION_TYPE"] = "sqlalchemy"
+app.config["SESSION_SQLALCHEMY"] = db
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_USE_SIGNER"] = True
+app.config["SESSION_COOKIE_SECURE"] = True
 
 Session(app)  # Initialize the session extension
 
@@ -55,9 +56,6 @@ init_mail(app)
 
 app.config["UPLOAD_FOLDER"] = "uploads"
 app.config["ALLOWED_EXTENSIONS"] = {"xlsx", "xls"}
-
-# Initialize database
-db.init_app(app)
 
 with app.app_context():
     db.create_all()
