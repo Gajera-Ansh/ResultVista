@@ -37,4 +37,4 @@ ResultVista is a comprehensive solution designed to streamline the process of re
 - **Upload excel file:** Upload excel file which in **example/Student_Marksheet_50_Students.xlsx** than click on **upload and validate** button
 - **Generating Result:** after clicking on **upload and validate** button scroll down and click on **Process Results**
 
-**To see screenshots open screenshots/ folder**
+**To see screenshots open /screenshots/ folder**
