@@ -1,4 +1,0 @@
-FROM mysql:8.0
-
-# Database is created automatically via the MYSQL_DATABASE env var.
-# Data is persisted through the Render disk mounted at /var/lib/mysql.

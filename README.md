@@ -13,40 +13,6 @@ ResultVista is a comprehensive solution designed to streamline the process of re
 
 ## Local Setup Instructions
 
-### Option A – Docker Compose (recommended, no XAMPP needed)
-
-Docker Compose starts both the Flask app and a MySQL 8.0 database with one command.
-
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/Gajera-Ansh/ResultVista.git
-   cd ResultVista
-   ```
-
-2. **Configure secrets (email & Google OAuth):**
-   Create a `.env` file from the example template:
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and fill in `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_DEFAULT_SENDER`, `CLIENT_ID`, and `CLIENT_SECRET`. The `DATABASE_URL` is set automatically by Docker Compose.
-
-3. **Start the app + database:**
-   ```bash
-   docker compose up --build
-   ```
-   The app will be available at **http://localhost:5000**.  
-   MySQL will be available at **localhost:3306** (database name: `user`, no password).
-
-4. **Stop everything:**
-   ```bash
-   docker compose down
-   ```
-   Add `-v` to also delete the database volume (`docker compose down -v`).
-
----
-
-### Option B – Manual (XAMPP)
-
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/Gajera-Ansh/ResultVista.git
@@ -74,19 +40,18 @@ Docker Compose starts both the Flask app and a MySQL 8.0 database with one comma
 ## Deployment
 
 ### Deploy to Render.com (recommended)
-`render.yaml` provisions **two services automatically**: the Flask web app and a MySQL database container with a persistent 5 GB disk.
-
 1. Push your code to GitHub.
 2. Go to [render.com](https://render.com) → **New** → **Blueprint** → connect your repository.
-3. Render detects `render.yaml` and creates both services.
-4. Set the following environment variables in the Render dashboard for the **web** service:
+3. Render detects `render.yaml` and creates the web service.
+4. Set the following environment variables in the Render dashboard:
+   - `DATABASE_URL` – Your MySQL connection string from an external provider such as [Railway](https://railway.app) or [PlanetScale](https://planetscale.com): `mysql+pymysql://user:password@host:3306/dbname`
    - `MAIL_USERNAME` – Your Gmail address
    - `MAIL_PASSWORD` – Your Gmail [App Password](https://myaccount.google.com/apppasswords) (requires [2-Step Verification](https://myaccount.google.com/signinoptions/twosv) to be enabled)
    - `MAIL_DEFAULT_SENDER` – Your Gmail address
    - `CLIENT_ID` – Google OAuth Client ID
    - `CLIENT_SECRET` – Google OAuth Client Secret
-   > `DATABASE_URL`, `SECRET_KEY`, `SESSION_FILE_DIR`, and `SESSION_COOKIE_SECURE` are configured automatically by `render.yaml`.
-5. Click **Apply** — both services will deploy and the database will be connected automatically.
+   > `SECRET_KEY`, `SESSION_FILE_DIR`, and `SESSION_COOKIE_SECURE` are configured automatically by `render.yaml`.
+5. Click **Apply** to deploy.
 
 ### Deploy to Railway
 Railway auto-provisions MySQL and injects `DATABASE_URL` into the app.

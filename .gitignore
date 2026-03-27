@@ -9,4 +9,3 @@ __pycache__/
 *.pyc
 flask_session/
 uploads/
-mysql_data/

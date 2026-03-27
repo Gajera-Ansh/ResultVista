@@ -6,10 +6,7 @@ services:
     startCommand: gunicorn --workers 4 --bind 0.0.0.0:$PORT app:app
     envVars:
       - key: DATABASE_URL
-        fromService:
-          type: pserv
-          name: resultvista-db
-          envVarKey: MYSQL_URL
+        sync: false
       - key: SECRET_KEY
         generateValue: true
       - key: MAIL_USERNAME
@@ -26,21 +23,3 @@ services:
         value: /tmp/flask_session
       - key: SESSION_COOKIE_SECURE
         value: "true"
-
-  # MySQL database running as a Render private service (Docker container)
-  - type: pserv
-    name: resultvista-db
-    env: docker
-    dockerfilePath: ./Dockerfile.mysql
-    disk:
-      name: mysql-data
-      mountPath: /var/lib/mysql
-      sizeGB: 5
-    envVars:
-      - key: MYSQL_DATABASE
-        value: user
-      - key: MYSQL_ALLOW_EMPTY_PASSWORD
-        value: "yes"
-      - key: MYSQL_URL
-        value: mysql+pymysql://root:@resultvista-db:3306/user
-
