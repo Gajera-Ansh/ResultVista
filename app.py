@@ -27,7 +27,7 @@ load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/user"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost:3306/ResultVista"
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 bcrypt = Bcrypt(app)
 
