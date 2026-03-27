@@ -41,7 +41,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_FILE_DIR"] = os.environ.get("SESSION_FILE_DIR", "./flask_session")
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
-app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "true").lower() == "true"
 
 Session(app)  # Initialize the session extension
 

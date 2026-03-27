@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: user
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    restart: on-failure
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql+pymysql://root:@db:3306/user
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      SESSION_FILE_DIR: /tmp/flask_session
+      SESSION_COOKIE_SECURE: "false"
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_DEFAULT_SENDER: ${MAIL_DEFAULT_SENDER:-}
+      CLIENT_ID: ${CLIENT_ID:-}
+      CLIENT_SECRET: ${CLIENT_SECRET:-}
+
+volumes:
+  mysql_data:
