@@ -27,7 +27,9 @@ ResultVista is a comprehensive solution designed to streamline the process of re
    Create a `.env` file in the root directory and add the necessary configuration variables as per the `.env.example` file.
 
 4. **Database setup:**
-   open XAMPP and create a database **ResultVista**.
+   - Create a PostgreSQL database on **Neon**
+   - Copy your connection string
+   - Add it to the `.env` file as:
 
 6. **Run the project:**
    run app.py file and click on the first link
@@ -38,3 +40,5 @@ ResultVista is a comprehensive solution designed to streamline the process of re
 - **Generating Result:** after clicking on **upload and validate** button scroll down and click on **Process Results**
 
 **To see screenshots open /screenshots/ folder**
+
+**Website Link: https://resultvista-tme1.onrender.com**
